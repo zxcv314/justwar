@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>군사 전략 턴제 게임</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>🎮 군사 전략 턴제 게임</h1>
+    <div id="status">
+        <p id="turn-info">현재 턴: <span id="current-player">P1</span> (턴 <span id="turn-count">1</span>)</p>
+        <p id="p1-resources">P1 자원: <span>200</span></p>
+        <p id="p2-resources">P2 자원: <span>200</span></p>
+        <p id="ap-info">남은 AP: <span>3</span> | <button id="end-turn-btn">턴 종료</button></p>
+    </div>
+    <div id="rules" style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+        <h3>📜 게임 규칙 요약 (클릭 접기)</h3>
+        <details>
+            <summary>상세 보기</summary>
+            <p>2인 턴제. 기지(HP10) 파괴 승리. 턴당 3AP: 구매/이동/타격. 구매 즉시 행동. 한 유닛 턴당 이동 or 타격(전투기 예외).</p>
+            <p>자원: 초기200 + 턴끝200. 지형: 숲/건물 사거리 1/2(버림). 관통 불가(2D에서 BFS 경로).</p>
+            <p>유닛 특수: 보병 전체1AP, 자폭 AP0, 자주포 정확3+무시, 저격 기갑불가, 방공 공중+폭격무효, 전투기 이동후공격, 델타/시모 폭격면역 등.</p>
+            <p>전술: 구매1AP+사용1AP. 폭격: 궤멸(면역제외), 헬파이어:3+1x2.</p>
+            <p>조작: 유닛 노드 클릭 → 유닛 선택 → 타겟 노드 클릭 → 이동/타격/특수 버튼.</p>
+        </details>
+    </div>
+    <div id="game-board"></div>
+    <div id="sidebar">
+        <div id="units-list">
+            <h3>P1 유닛</h3><ul id="p1-units"></ul>
+            <h3>P2 유닛</h3><ul id="p2-units"></ul>
+        </div>
+        <div id="actions">
+            <h3>구매 (1 AP)</h3>
+            <div id="buy-buttons"></div>
+            <h3>전술 구매 (1 AP)</h3>
+            <div id="tactic-buy-buttons"></div>
+        </div>
+        <div id="tactics-list">
+            <h3>전술 사용 (1 AP)</h3>
+            <div id="my-tactics"></div>
+        </div>
+        <div id="special-actions">
+            <h3>특수 명령</h3>
+            <button onclick="infantryCommand('move')">보병 전체 이동</button>
+            <button onclick="infantryCommand('attack')">보병 전체 타격</button>
+        </div>
+        <div id="unit-controls" style="display:none;">
+            <h3>선택 유닛: <span id="selected-unit-name"></span></h3>
+            <button onclick="performAction('move')">이동</button>
+            <button onclick="performAction('attack')">타격</button>
+            <button onclick="performAction('special')">특수</button>
+            <button onclick="cancelSelection()" style="background:#999;">취소</button>
+        </div>
+    </div>
+    <div id="log">
+        <h3>로그</h3>
+        <ul id="log-list"></ul>
+    </div>
+    <div id="instructions">
+        <small>📖 유닛 있는 노드 클릭 → 선택 → 타겟 노드 클릭 → 버튼 클릭 (취소 가능)</small>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
