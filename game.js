@@ -44,44 +44,41 @@ const tacticData = {
 const mapPresets = {
     classic: () => {
         const map = [];
-        const size = 6;
-        for (let row = 0; row < size; row++) {
-            for (let col = 0; col < size; col++) {
-                const id = row * size + col;
+        for (let row = 0; row < 3; row++) {
+            for (let col = 0; col < 3; col++) {
+                const id = row * 3 + col;
                 const terrain = Math.random() < 0.3 ? 'forest' : Math.random() < 0.4 ? 'building' : 'plain';
                 map.push({ id, row, col, type: 'normal', terrain, units: [], hellfireRemaining: 0, baseHP: 0, owner: null });
             }
         }
         map[0].type = 'base'; map[0].owner = 'P1'; map[0].baseHP = 10;
-        map[map.length - 1].type = 'base'; map[map.length - 1].owner = 'P2'; map[map.length - 1].baseHP = 10;
+        map[8].type = 'base'; map[8].owner = 'P2'; map[8].baseHP = 10;
         return map;
     },
     fortress: () => {
         const map = [];
-        const size = 6;
         const terrains = ['forest', 'forest', 'forest', 'building', 'plain', 'building', 'forest', 'forest', 'forest'];
-        for (let row = 0; row < size; row++) {
-            for (let col = 0; col < size; col++) {
-                const id = row * size + col;
+        for (let row = 0; row < 3; row++) {
+            for (let col = 0; col < 3; col++) {
+                const id = row * 3 + col;
                 map.push({ id, row, col, type: 'normal', terrain: terrains[id], units: [], hellfireRemaining: 0, baseHP: 0, owner: null });
             }
         }
         map[0].type = 'base'; map[0].owner = 'P1'; map[0].baseHP = 10;
-        map[map.length - 1].type = 'base'; map[map.length - 1].owner = 'P2'; map[map.length - 1].baseHP = 10;
+        map[8].type = 'base'; map[8].owner = 'P2'; map[8].baseHP = 10;
         return map;
     },
     corridor: () => {
         const map = [];
-        const size = 6;
         const terrains = ['plain', 'building', 'plain', 'building', 'plain', 'building', 'plain', 'building', 'plain'];
-        for (let row = 0; row < size; row++) {
-            for (let col = 0; col < size; col++) {
-                const id = row * size + col;
+        for (let row = 0; row < 3; row++) {
+            for (let col = 0; col < 3; col++) {
+                const id = row * 3 + col;
                 map.push({ id, row, col, type: 'normal', terrain: terrains[id], units: [], hellfireRemaining: 0, baseHP: 0, owner: null });
             }
         }
         map[0].type = 'base'; map[0].owner = 'P1'; map[0].baseHP = 10;
-        map[map.length - 1].type = 'base'; map[map.length - 1].owner = 'P2'; map[map.length - 1].baseHP = 10;
+        map[8].type = 'base'; map[8].owner = 'P2'; map[8].baseHP = 10;
         return map;
     },
     random: () => mapPresets.classic()
@@ -267,8 +264,6 @@ function renderAll() {
 
 function renderMap() {
     const board = document.getElementById('game-board');
-    const size = Math.sqrt(gameState.map.length);
-    board,style.gridTemplateColumns = `repeat(${size}, 1fr)`;
     board.innerHTML = '';
     
     gameState.map.forEach(node => {
@@ -343,9 +338,8 @@ function renderMyTactics() {
         btn.textContent = `${tactic.name} 사용`;
         btn.disabled = gameState.apLeft < 1;
         btn.onclick = () => {
-            const maxNode = gameState.map.length - 1; // 맵의 마지막 번호 계산
-            const target = parseInt(prompt(`${tactic.name}\n타겟 노드 번호 (0~${maxNode}):`));
-            if (!isNaN(target) && target >= 0 && target <= maxNode) { 
+            const target = parseInt(prompt(`${tactic.name}\n타겟 노드 번호 (0~8):`));
+            if (target >= 0 && target <= 8) {
                 useTactic(tactic.name, target);
             }
         };
@@ -504,7 +498,7 @@ function buyUnit(name) {
     }
 
     player.resources -= data.cost;
-    const pos = gameState.currentPlayer === 'P1' ? 0 : gameState.map.length - 1;
+    const pos = gameState.currentPlayer === 'P1' ? 0 : 8;
     const newUnit = { 
         id: unitIdCounter++,
         name, 
@@ -568,7 +562,7 @@ function bfsDistance(start, target) {
 }
 
 function getNeighbors(id) {
-    const mapSize = Math.sqrt(gameState.map.length);
+    const mapSize = 3;
     const row = Math.floor(id / mapSize), col = id % mapSize;
     const nei = [];
     if (row > 0) nei.push(id - mapSize);
@@ -737,11 +731,6 @@ function specialAction(unit, targetId) {
 
 // ============================= 전술 =============================
 function useTactic(name, targetNodeId) {
-
-    if (targetNodeId < 0 || targetNodeId >= gameState.map.length) {
-        addLog('❌ 존재하지 않는 노드 번호입니다!');
-        return;
-    }
     if (gameState.apLeft < 1) {
         addLog('❌ AP 부족!');
         return;
@@ -826,12 +815,9 @@ function infantryCommand(action) {
         return;
     }
 
-    const maxNode = gameState.map.length - 1;
-    const target = parseInt(prompt(`보병 부대 전체 ${action === 'move' ? '이동' : '타격'} 타겟 노드 (0~${maxNode}):`));
-    if (isNaN(target) || target < 0 || target > maxNode) {
-        addLog("❌ 잘못된 노드 번호입니다.");
-        return;
-    }
+    const target = parseInt(prompt(`보병 부대 전체 ${action === 'move' ? '이동' : '타격'} 타겟 노드 (0~8):`));
+    
+    if (isNaN(target) || target < 0 || target > 8) return;
 
     let successCount = 0;
     
